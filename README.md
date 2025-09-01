@@ -1,50 +1,123 @@
-# Welcome to your Expo app 👋
+# Firebase Authentication with React Native + Expo 🔥
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este é um projeto de demonstração que integra **React Native**, **Expo** e **Firebase** para implementar um sistema completo de autenticação.
 
-## Get started
+## 🚀 Tecnologias Utilizadas
 
-1. Install dependencies
+- **React Native** - Framework para desenvolvimento mobile multiplataforma
+- **Expo** - Plataforma que simplifica o desenvolvimento React Native
+- **Firebase** - Backend-as-a-Service da Google para autenticação e outros serviços
+- **TypeScript** - Superset do JavaScript com tipagem estática
 
+## 📱 Funcionalidades
+
+- ✅ Configuração completa do Firebase
+- ✅ Sistema de autenticação (login/registro)
+- ✅ Navegação protegida com rotas autenticadas
+- ✅ Interface moderna e responsiva
+- ✅ Suporte para iOS e Android
+
+## 🛠️ Configuração do Projeto
+
+### Pré-requisitos
+
+- Node.js (versão 16 ou superior)
+- Expo CLI instalado globalmente
+- Conta no Firebase Console
+- Xcode (para iOS) ou Android Studio (para Android)
+
+### Instalação
+
+1. **Clone o repositório**
+   ```bash
+   git clone <url-do-repositorio>
+   cd firebase-initial
+   ```
+
+2. **Instale as dependências**
    ```bash
    npm install
    ```
 
-2. Start the app
+3. **Configure o Firebase**
+   - Crie um projeto no [Firebase Console](https://console.firebase.google.com/)
+   - Baixe os arquivos de configuração:
+     - `google-services.json` (Android) → pasta `android/app/`
+     - `GoogleService-Info.plist` (iOS) → pasta `ios/comfirebaseinitial/`
+   - Ative a autenticação por email/senha no Firebase
 
+4. **Execute o projeto**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## 📁 Estrutura do Projeto
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+firebase-initial/
+├── app/                    # Código principal da aplicação
+│   ├── (auth)/            # Rotas autenticadas
+│   ├── _layout.tsx        # Layout principal
+│   └── index.tsx          # Tela inicial
+├── config/                 # Configurações e utilitários
+├── android/                # Configurações específicas do Android
+├── ios/                    # Configurações específicas do iOS
+└── assets/                 # Recursos estáticos (imagens, fontes)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🔐 Autenticação
 
-## Learn more
+O projeto implementa um sistema de autenticação completo:
 
-To learn more about developing your project with Expo, look at the following resources:
+- **Login** - Autenticação com email e senha
+- **Registro** - Criação de novas contas
+- **Proteção de Rotas** - Acesso restrito a usuários autenticados
+- **Persistência** - Manutenção do estado de autenticação
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📱 Plataformas Suportadas
 
-## Join the community
+- **iOS** - Desenvolvido e testado
+- **Android** - Desenvolvido e testado
+- **Web** - Suporte básico via Expo
 
-Join our community of developers creating universal apps.
+## 🚀 Como Executar
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Desenvolvimento
+```bash
+npx expo start
+```
+
+### Build para Produção
+```bash
+# Android
+npx expo build:android
+
+# iOS
+npx expo build:ios
+```
+
+## 📚 Recursos Adicionais
+
+- **Navegação** - Sistema de roteamento com Expo Router
+- **Estilização** - Design system consistente
+- **Tratamento de Erros** - Sistema robusto de tratamento de erros
+- **Configuração** - Arquivos de configuração organizados
+
+## 🤝 Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 📞 Suporte
+
+Se você encontrar algum problema ou tiver dúvidas:
+
+- Consulte a [documentação do Expo](https://docs.expo.dev/)
+- Consulte a [documentação do Firebase](https://firebase.google.com/docs)
