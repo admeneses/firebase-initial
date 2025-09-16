@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "936098098727",
+    "firebase_url": "https://fir-initial-cde36-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "fir-initial-cde36",
     "storage_bucket": "fir-initial-cde36.firebasestorage.app"
   },
@@ -12,7 +13,12 @@
           "package_name": "com.firebase.initial"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "936098098727-fl7gnt1lmqmqhdop28p51476ha4glpmt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDpw28geM4GvzfE2wQKjcY3D5FFEvdKRXk"
@@ -20,7 +26,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "936098098727-fl7gnt1lmqmqhdop28p51476ha4glpmt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "936098098727-aqjck4e2q2cibjlml8t521v6iuqu7t7f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.firebase.initial"
+              }
+            }
+          ]
         }
       }
     }

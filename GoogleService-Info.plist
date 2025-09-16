@@ -30,5 +30,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:936098098727:ios:ff9717084a79ea5e776802</string>
+	<key>DATABASE_URL</key>
+	<string>https://fir-initial-cde36-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

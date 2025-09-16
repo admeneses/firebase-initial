@@ -1,6 +1,8 @@
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import { createUserWithEmailAndPassword, FirebaseAuthTypes, getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
+import remoteConfig from '@react-native-firebase/remote-config';
 import { FirebaseError } from 'firebase/app';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	KeyboardAvoidingView,
@@ -18,19 +20,41 @@ import { getErrorMessage, SUCCESS_MESSAGES } from '../config/errors';
 import { showLoginAlert } from '../config/utils';
 
 export default function Index() {
+	const config = remoteConfig();
+	const [title, setTitle] = useState('FIAP');
+	const [newScreen, setScreen] = useState(false);
+
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 
+	const fetchRemoteConfig = async () => {
+		try {
+			await config.fetchAndActivate()
+			const titleValue = config.getValue('titleApp').asString();
+			const screenValue = config.getValue('NewScreenEnabled').asBoolean();
+			
+			setTitle(titleValue);
+			setScreen(screenValue);
+		} catch (error) {
+			console.log('Erro ao buscar Remote Config:', error);
+		}
+	}
 
 	const signUp = async () => {		
 		setLoading(true);
 		try {
-			await createUserWithEmailAndPassword(getAuth(), email, password);
+			const response = await createUserWithEmailAndPassword(getAuth(), email, password);
+
+			if (response.user) {
+				await createProfile(response);
+			}
+
 			showLoginAlert(SUCCESS_MESSAGES.SIGNUP_SUCCESS, 'success');
 		} catch (erro: FirebaseError | any) {
 			console.log('Erro no cadastro:', erro);
-			const errorMessage = getErrorMessage(erro.code);
+			const errorCode = erro?.code || erro?.message || 'unknown';
+			const errorMessage = getErrorMessage(errorCode);
 			showLoginAlert(errorMessage, 'error');
 		} finally {
 			setLoading(false);
@@ -43,12 +67,27 @@ export default function Index() {
 			await signInWithEmailAndPassword(getAuth(), email, password);
 		} catch (erro: FirebaseError | any) {
 			console.log('Erro no login:', erro);
-			const errorMessage = getErrorMessage(erro.code);
+			const errorCode = erro?.code || erro?.message || 'unknown';
+			const errorMessage = getErrorMessage(errorCode);
 			showLoginAlert(errorMessage, 'error');
 		} finally {
 			setLoading(false);
 		}
 	};
+
+	const createProfile = async (response: FirebaseAuthTypes.UserCredential) => {
+		database().ref(`/users/${response.user.uid}`).set({email: response.user.email});
+	}
+
+	useEffect(() => {
+		config.setConfigSettings({minimumFetchIntervalMillis: 0})
+		config.setDefaults({
+			title: 'FIAP',
+			NewScreenEnabled: false,
+		})
+
+		fetchRemoteConfig();
+	}, []);
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -63,7 +102,7 @@ export default function Index() {
 					keyboardShouldPersistTaps="handled"
 				>
 					<View style={styles.logoContainer}>
-						<Text style={styles.logoText}>FIAP</Text>
+						<Text style={styles.logoText}>{title}</Text>
 						<Text style={styles.subtitleText}>Autenticação Firebase</Text>
 					</View>
 
@@ -133,6 +172,21 @@ export default function Index() {
 										Criar Conta
 									</Text>
 								</TouchableOpacity>
+
+								{newScreen && 
+									<TouchableOpacity 
+										style={[
+											styles.signupButton,
+											styles.forgotPasswordButton,
+										]} 
+									>
+										<Text style={[
+											styles.signupButtonText,
+										]}>
+											Esqueci minha senha
+										</Text>
+									</TouchableOpacity>
+								}
 							</View>
 						)}
 					</View>
@@ -257,6 +311,9 @@ const styles = StyleSheet.create({
 	},
 	disabledOutlineButtonText: {
 		color: FIAP_COLORS.TEXT_LIGHT
+	},
+	forgotPasswordButton: {
+		marginTop: 16
 	},
 	loadingContainer: {
 		alignItems: 'center',
