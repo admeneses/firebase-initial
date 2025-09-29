@@ -1,23 +1,15 @@
-# Firebase Authentication with React Native + Expo 🔥
+# Firebase + React Native + Expo
 
 Este é um projeto de demonstração que integra **React Native**, **Expo** e **Firebase** para implementar um sistema completo de autenticação.
 
-## 🚀 Tecnologias Utilizadas
+## Stack
 
 - **React Native** - Framework para desenvolvimento mobile multiplataforma
 - **Expo** - Plataforma que simplifica o desenvolvimento React Native
 - **Firebase** - Backend-as-a-Service da Google para autenticação e outros serviços
 - **TypeScript** - Superset do JavaScript com tipagem estática
 
-## 📱 Funcionalidades
-
-- ✅ Configuração completa do Firebase
-- ✅ Sistema de autenticação (login/registro)
-- ✅ Navegação protegida com rotas autenticadas
-- ✅ Interface moderna e responsiva
-- ✅ Suporte para iOS e Android
-
-## 🛠️ Configuração do Projeto
+## Configuração do Projeto
 
 ### Pré-requisitos
 
@@ -65,7 +57,7 @@ firebase-initial/
 └── assets/                 # Recursos estáticos (imagens, fontes)
 ```
 
-## 🔐 Autenticação
+## Autenticação
 
 O projeto implementa um sistema de autenticação completo:
 
@@ -74,13 +66,7 @@ O projeto implementa um sistema de autenticação completo:
 - **Proteção de Rotas** - Acesso restrito a usuários autenticados
 - **Persistência** - Manutenção do estado de autenticação
 
-## 📱 Plataformas Suportadas
-
-- **iOS** - Desenvolvido e testado
-- **Android** - Desenvolvido e testado
-- **Web** - Suporte básico via Expo
-
-## 🚀 Como Executar
+## Como Executar
 
 ### Desenvolvimento
 ```bash
@@ -96,28 +82,7 @@ npx expo build:android
 npx expo build:ios
 ```
 
-## 📚 Recursos Adicionais
-
-- **Navegação** - Sistema de roteamento com Expo Router
-- **Estilização** - Design system consistente
-- **Tratamento de Erros** - Sistema robusto de tratamento de erros
-- **Configuração** - Arquivos de configuração organizados
-
-## 🤝 Contribuição
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
-## 📞 Suporte
-
-Se você encontrar algum problema ou tiver dúvidas:
+## Documentação
 
 - Consulte a [documentação do Expo](https://docs.expo.dev/)
 - Consulte a [documentação do Firebase](https://firebase.google.com/docs)
