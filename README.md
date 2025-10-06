@@ -66,6 +66,17 @@ O projeto implementa um sistema de autenticação completo:
 - **Proteção de Rotas** - Acesso restrito a usuários autenticados
 - **Persistência** - Manutenção do estado de autenticação
 
+## Notificações Push e Toast
+
+O projeto inclui suporte a notificações push e exibição de mensagens toast:
+
+- Push: implementado com `@react-native-firebase/messaging` (solicitação de permissão, obtenção de token FCM e listeners de mensagens em foreground/background).
+- Toast: implementado com `react-native-toast-message` para avisos em primeiro plano quando uma notificação chega.
+
+Envio de notificações:
+- Use o token FCM exibido na tela para testes.
+- Para melhor entrega, envie mensagens com prioridade alta (Android/iOS) a partir do servidor ou Firebase Console.
+
 ## Como Executar
 
 ### Desenvolvimento

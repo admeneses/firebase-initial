@@ -1,12 +1,14 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword, FirebaseAuthTypes, getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import messaging from '@react-native-firebase/messaging';
 import remoteConfig from '@react-native-firebase/remote-config';
 import { FirebaseError } from 'firebase/app';
 import { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
-	KeyboardAvoidingView,
-	Platform,
+	Alert,
+	KeyboardAvoidingView, PermissionsAndroid, Platform,
 	SafeAreaView,
 	ScrollView,
 	StyleSheet,
@@ -15,6 +17,7 @@ import {
 	TouchableOpacity,
 	View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { FIAP_COLORS, SHADOW_STYLES } from '../config/colors';
 import { getErrorMessage, SUCCESS_MESSAGES } from '../config/errors';
 import { showLoginAlert } from '../config/utils';
@@ -27,6 +30,141 @@ export default function Index() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
+	
+	const [fcmToken, setFcmToken] = useState<string | null>(null);
+
+	async function requestUserPermission() {
+		try {
+			console.log('Solicitando permissões de notificação...');
+			
+			// Primeiro solicitar permissões
+			PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+
+			const authStatus = await messaging().requestPermission();
+			const enabled =
+				authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+				authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+			console.log('Status de permissão:', authStatus, 'Habilitado:', enabled);
+
+			if (enabled) {
+				console.log('Permissões de notificação concedidas:', authStatus);
+				
+				// Registrar dispositivo para mensagens remotas APÓS permissão concedida
+				if (Platform.OS === 'ios') {
+					try {
+						await messaging().registerDeviceForRemoteMessages();
+						console.log('Dispositivo registrado para mensagens remotas (iOS)');
+					} catch (registerError) {
+						console.log('Erro no registro do dispositivo:', registerError);
+					}
+				}
+				
+				// Obter token após permissão concedida
+				const token = await getFCMToken();
+				if (token) {
+					setFcmToken(token);
+				}
+			} else {
+				console.log('Permissões de notificação negadas:', authStatus);
+			}
+			return enabled;
+		} catch (error) {
+			console.log('Erro ao solicitar permissões:', error);
+			return false;
+		}
+	}
+
+	async function getFCMToken() {
+		try {
+			console.log('Verificando token FCM...');
+			let fcmToken = await AsyncStorage.getItem('fcmToken');
+			console.log('Token armazenado:', fcmToken ? 'Existe' : 'Não existe');
+			
+			if (!fcmToken) {
+				console.log('Gerando novo token FCM...');
+				
+				// Tentar obter token diretamente
+				const token = await messaging().getToken();
+				console.log('Token FCM obtido:', token ? 'Sucesso' : 'Falha');
+				
+				if (token) {
+					await AsyncStorage.setItem('fcmToken', token);
+					console.log('Token FCM salvo no AsyncStorage');
+					console.log('Token completo:', token);
+					return token;
+				} else {
+					console.log('Falha ao obter token FCM');
+				}
+			} else {
+				console.log('Token FCM já existe:', fcmToken);
+			}
+			return fcmToken;
+		} catch (error) {
+			console.log('Erro ao obter token FCM:', error);
+			return null;
+		}
+	}
+
+	const setupNotificationListeners = () => {
+		try {
+			// Listener para quando o app é aberto a partir de uma notificação (background)
+			const unsubscribeNotificationOpened = messaging().onNotificationOpenedApp(remoteMessage => {
+				console.log('App aberto a partir de notificação (background):', remoteMessage);
+				// Aqui você pode navegar para uma tela específica baseada nos dados da notificação
+				if (remoteMessage.data?.screen) {
+					console.log('Navegar para tela');
+				}
+			});
+
+			// Verificar se o app foi aberto a partir de uma notificação (quit state)
+			messaging()
+				.getInitialNotification()
+				.then(remoteMessage => {
+					if (remoteMessage) {
+						console.log('App aberto a partir de notificação (quit state):', remoteMessage);
+						// Aqui você pode navegar para uma tela específica
+						if (remoteMessage.data?.screen) {
+							console.log('Navegar para tela');
+						}
+					}
+				})
+				.catch(error => {
+					console.log('Erro ao verificar notificação inicial:', error);
+				});
+
+			// Listener para mensagens recebidas quando o app está em foreground
+			const unsubscribeForegroundMessage = messaging().onMessage(async remoteMessage => {
+				console.log('Mensagem recebida em foreground:', remoteMessage);
+				
+				// Mostrar toast personalizado para notificações em primeiro plano
+				if (remoteMessage.notification) {
+					Toast.show({
+						type: 'info',
+						text1: remoteMessage.notification.title || 'Nova mensagem',
+						text2: remoteMessage.notification.body || 'Você recebeu uma nova notificação',
+						position: 'top',
+						visibilityTime: 4000,
+						autoHide: true,
+						topOffset: 60,
+						onPress: () => {
+							// Navegar para tela de detalhes se necessário
+							console.log('Ver detalhes da notificação');
+						}
+					});
+				}
+			});
+
+			// Retornar função para limpar os listeners
+			return () => {
+				unsubscribeNotificationOpened();
+				unsubscribeForegroundMessage();
+			};
+		} catch (error) {
+			console.log('Erro ao configurar listeners de notificação:', error);
+			return () => {};
+		}
+	};
 
 	const fetchRemoteConfig = async () => {
 		try {
@@ -89,6 +227,21 @@ export default function Index() {
 		fetchRemoteConfig();
 	}, []);
 
+	useEffect(() => {
+		// Configurar listeners de notificação
+		const unsubscribeListeners = setupNotificationListeners();
+		
+		// Solicitar permissões e obter token
+		requestUserPermission();
+
+		// Cleanup function
+		return () => {
+			if (unsubscribeListeners) {
+				unsubscribeListeners();
+			}
+		};
+	}, []);
+
 	return (
 		<SafeAreaView style={styles.container}>
 			<KeyboardAvoidingView 
@@ -104,6 +257,40 @@ export default function Index() {
 					<View style={styles.logoContainer}>
 						<Text style={styles.logoText}>{title}</Text>
 						<Text style={styles.subtitleText}>Autenticação Firebase</Text>
+					</View>
+
+					{/* Seção de Debug FCM */}
+					<View style={styles.debugContainer}>
+						<Text style={styles.debugTitle}>Status FCM</Text>
+						{fcmToken && (
+							<View style={styles.tokenContainer}>
+								<Text style={styles.tokenLabel}>Token FCM:</Text>
+								<Text style={styles.tokenText} numberOfLines={3} ellipsizeMode="middle">
+									{fcmToken}
+								</Text>
+								<TouchableOpacity 
+									style={styles.copyButton}
+									onPress={() => {
+										console.log('Token para copiar:', fcmToken);
+										Alert.alert('Token FCM', fcmToken);
+									}}
+								>
+									<Text style={styles.copyButtonText}>Copiar Token</Text>
+								</TouchableOpacity>
+							</View>
+						)}
+						<TouchableOpacity 
+							style={styles.refreshButton}
+							onPress={async () => {
+								console.log('Atualizando token FCM...');
+								const token = await getFCMToken();
+								if (token) {
+									setFcmToken(token);
+								}
+							}}
+						>
+							<Text style={styles.refreshButtonText}>Atualizar Token</Text>
+						</TouchableOpacity>
 					</View>
 
 					<View style={styles.formContainer}>
@@ -333,5 +520,77 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		color: FIAP_COLORS.TEXT_LIGHT,
 		textAlign: 'center'
+	},
+	debugContainer: {
+		backgroundColor: FIAP_COLORS.BACKGROUND_WHITE,
+		borderRadius: 12,
+		padding: 16,
+		marginHorizontal: 24,
+		marginBottom: 20,
+		borderWidth: 1,
+		borderColor: FIAP_COLORS.BORDER_LIGHT,
+		...SHADOW_STYLES.SMALL
+	},
+	debugTitle: {
+		fontSize: 18,
+		fontWeight: 'bold',
+		color: FIAP_COLORS.PRIMARY_GREEN,
+		marginBottom: 8,
+		textAlign: 'center'
+	},
+	debugText: {
+		fontSize: 14,
+		color: FIAP_COLORS.TEXT_SECONDARY,
+		marginBottom: 12,
+		textAlign: 'center'
+	},
+	tokenContainer: {
+		backgroundColor: FIAP_COLORS.BACKGROUND_LIGHT,
+		borderRadius: 8,
+		padding: 12,
+		marginBottom: 12
+	},
+	tokenLabel: {
+		fontSize: 14,
+		fontWeight: '600',
+		color: FIAP_COLORS.TEXT_PRIMARY,
+		marginBottom: 4
+	},
+	tokenText: {
+		fontSize: 12,
+		color: FIAP_COLORS.TEXT_SECONDARY,
+		fontFamily: 'monospace',
+		backgroundColor: FIAP_COLORS.BACKGROUND_WHITE,
+		padding: 8,
+		borderRadius: 4,
+		borderWidth: 1,
+		borderColor: FIAP_COLORS.BORDER_LIGHT
+	},
+	copyButton: {
+		backgroundColor: FIAP_COLORS.PRIMARY_GREEN,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		borderRadius: 6,
+		marginTop: 8,
+		alignSelf: 'flex-start'
+	},
+	copyButtonText: {
+		color: FIAP_COLORS.TEXT_WHITE,
+		fontSize: 12,
+		fontWeight: '600'
+	},
+	refreshButton: {
+		backgroundColor: 'transparent',
+		borderWidth: 1,
+		borderColor: FIAP_COLORS.PRIMARY_GREEN,
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		borderRadius: 8,
+		alignSelf: 'center'
+	},
+	refreshButtonText: {
+		color: FIAP_COLORS.PRIMARY_GREEN,
+		fontSize: 14,
+		fontWeight: '600'
 	}
 });

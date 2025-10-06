@@ -2,6 +2,7 @@ import { FirebaseAuthTypes, getAuth, onAuthStateChanged } from '@react-native-fi
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { FIAP_COLORS } from '../config/colors';
 
 export default function RootLayout() {
@@ -45,31 +46,34 @@ export default function RootLayout() {
 		);
 
 	return (
-		<Stack
-			screenOptions={{
-				headerStyle: {
-					backgroundColor: FIAP_COLORS.PRIMARY_GREEN,
-				},
-				headerTintColor: FIAP_COLORS.TEXT_WHITE,
-				headerTitleStyle: {
-					fontWeight: 'bold',
-				},
-			}}
-		>
-			<Stack.Screen 
-				name="index" 
-				options={{ 
-					title: 'Login',
-					headerShown: false
-				}} 
-			/>
-			<Stack.Screen 
-				name="(auth)" 
-				options={{ 
-					headerShown: false 
-				}} 
-			/>
-		</Stack>
+		<>
+			<Stack
+				screenOptions={{
+					headerStyle: {
+						backgroundColor: FIAP_COLORS.PRIMARY_GREEN,
+					},
+					headerTintColor: FIAP_COLORS.TEXT_WHITE,
+					headerTitleStyle: {
+						fontWeight: 'bold',
+					},
+				}}
+			>
+				<Stack.Screen 
+					name="index" 
+					options={{ 
+						title: 'Login',
+						headerShown: false
+					}} 
+				/>
+				<Stack.Screen 
+					name="(auth)" 
+					options={{ 
+						headerShown: false 
+					}} 
+				/>
+			</Stack>
+			<Toast />
+		</>
 	);
 }
 
